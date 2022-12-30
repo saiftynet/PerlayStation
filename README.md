@@ -1,3 +1,5 @@
 # PerlayStation Games Console
 
-A  collection of onsole based based games for the terminally minded people.  The are a set of Perl applications that offer that work on a ASNI capable terminal.  Many of these are collected from many sources.  
+A  collection of console based based games for the terminally minded people.  These are a set of Perl applications that offer that work on a ASNI capable terminal. I will place open source offerings by other people in one folder, mainly for reference and inspiration.  but the main area of my interest is to delvelop an reasonably comprehensive SDK for Perl terminal games using Term::Graille and other Pure Perl libraries , which forms the basis of the project. The terminal is a limited capability platform, so we are not expecting Hi-Res, high speed, graphics Intensive pwoer house gaming, but the games should be playable, interesting, diverse, but most significantly all have very litlle in the way of dependency, and most critically as close to Pure Perl as possible.
+
+![invaders](https://user-images.githubusercontent.com/34284663/210085239-d07530eb-6627-4dbb-b6e9-4b9a3615d171.gif)
