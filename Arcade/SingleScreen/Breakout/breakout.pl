@@ -39,7 +39,7 @@ my $help={};
 
 newWall();
 $spriteBank->drawAll($canvas);
-sleep 5;
+
 my $io=Term::Graille::Interact->new();
 $io->{debugCursor}=[22,45];
 
