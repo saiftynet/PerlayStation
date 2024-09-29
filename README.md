@@ -24,3 +24,8 @@ The games rely on Term::Graille and its dependencies.  These provide Graphics, I
 ## [Breakout](https://github.com/saiftynet/PerlayStation/tree/main/Arcade/SingleScreen/Breakout)
 
 [breakout.webm](https://user-images.githubusercontent.com/34284663/211404936-fb79f676-a505-413e-bad0-d1ac28c7f7d3.webm)
+
+## [3D Maze]()
+
+![maze](https://github.com/user-attachments/assets/0c2f88a2-9394-46a4-8a41-d243513739d3)
+
