@@ -25,7 +25,7 @@ The games rely on Term::Graille and its dependencies.  These provide Graphics, I
 
 [breakout.webm](https://user-images.githubusercontent.com/34284663/211404936-fb79f676-a505-413e-bad0-d1ac28c7f7d3.webm)
 
-## [3D Maze]()
+## [3D Maze](https://github.com/saiftynet/PerlayStation/blob/main/Arcade/3D%20Maze/3D%20Maze.md)
 
 ![maze](https://github.com/user-attachments/assets/0c2f88a2-9394-46a4-8a41-d243513739d3)
 
