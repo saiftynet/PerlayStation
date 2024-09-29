@@ -10,9 +10,9 @@ e           wwgwwgwwgwwwgw          r           y           e
 e           b                       w           w           e
 e           w           rwrwrwrwrwrwwwrw        y           e
 e           b                 w                 w           e
-etwtwt      w                 m         ywywywywwwmgww      e
+ebwbwb      w                 m         ywywywywwwmgww      e
 e           b           wwmwmww                      m      e
-e     bwbwbww           m                 rbrbwr     g      e
+e     bwbwbww           m         t       rbrbwr     g      e
 e           wwmwm    wmww                 w    b     w      e
 e           w           y        ww            r     m      e
 e           r          wwymymymymww      brbrbrb     g      e
@@ -20,10 +20,10 @@ e    wrwrwrww                                        w      e
 e                                  wwywrwywrwywrwywrwm      e
 e       wwwwwwbwrwywmwbwr            w                      e
 e            w                       w               w      e
-e            r             wwgwwmwwgwwmwwtwwmww      t      e
+e            r             wwgwwmwwgwwmwwgwwmww      r      e
 e            w                                       w      e
 e            m                                       m      e
-e            wwbwwrwwrwwrwwrwwrwwrwwrww     twwtwwwtww      e
+e            wwbwwrwwrwwrwwrwwrwwrwwrww     rwwgwwwbww      e
 e            w                                              e
 e            w                                              e
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
@@ -34,16 +34,27 @@ my $ui=new UI;
 setupUI();
 
 my $mode="3d";
-
-my $screenHeight=($ui->{windowHeight}*4-20)//100 ;
-my $screenWidth =($ui->{windowWidth}*2-40)//180;
+my $screenHeight=($ui->{windowHeight}*4-30)//100 ;  # dimensions of 3d graphical maze
+my $screenWidth =($ui->{windowWidth}*2-40)//180;    # dimensions of 3d graphical maze
 my $hOffset= 10;
-my $vOffset=2;
+my $vOffset=4;
 my $map= buildMap();
 my $player={position=>[5,5],dir=>0.1,fov=>1,character=>"P"};
+my $colIndex={w=>37,e=>32,y=>93,r=>31,b=>94,g=>32,m=>35,t=>[5,35],title=>[47,91],instructions=>[47,34]};
 
+clearScreen();
+drawTitle();
 rayD();
-$ui->run("default");
+$ui->run("default");  # start interactivity
+
+sub drawTitle{
+	my $line=1;
+	printAt([$line++,$ui->{windowWidth}/2-3], paint("   3D Maze   ",$colIndex->{title}));
+	foreach("  Arrowkeys = Forward,Backwards,Turn Left,Turn Right  ",
+            "       A = Side Step Left   D = Side Step Right       "){
+       	printAt([$line++,($ui->{windowWidth}-length $_)/2], paint($_,$colIndex->{instructions}));
+	}
+}
 
 # this routine draws rays from the player and gets distances to 
 # the obstacle the ray encounters. it returns a listref of hashes
@@ -69,6 +80,7 @@ sub rayD{
 			}
 	if ($mode eq "map") {draw2D($collection)}
 	else{draw3D([@distances])};
+	drawStatus();
 }
 
 # this takes the list of distances and draws walls in 3d
@@ -76,7 +88,6 @@ sub rayD{
 sub draw3D{
 	my ($distances)=@_;
 	my $view=grid($screenWidth,$screenHeight);
-	my $wallCols={w=>37,e=>32,y=>33,r=>31,b=>34,g=>32,m=>35,t=>35};
 	my $colours;
 	my $w=1;
 	foreach my $d(@$distances){
@@ -88,25 +99,23 @@ sub draw3D{
 		my $gap=int(($screenHeight-$height)/2+.5);
 		for(my $y=$gap;$y<$height+$gap;$y+=1+$d->[3]){
 			# plot wall, but makes the edges ($d->][1] eq "e") lighter (edge of map)
-			$colours->[int $y/4]->[int ($w/2)]=$wallCols->{$d->[1]} if $w%2;
+			$colours->[int $y/4]->[int ($w/2)]=$colIndex->{$d->[1]} if $w%2;
 			plot ($view,[$w,$y]) unless $w%2 && ($d->[1] eq "e");
 		}
 	}
-	draw($view,undef,undef,undef,undef,$colours);
-	drawStatus();
+	draw($view,$colours);
 }
 
 # the status bar
 sub drawStatus{
-	print "\n\r         Player position=".toString($player->{position}),
-          "         Player dir=".sprintf("%.2f",$player->{dir}),"\n\r",
-          "         Arrowkeys=> Forward,Backwards,Turn Left,Turn Right\n\r",
-          "         A= Side Step Left D= Side Step Right","\n\r";
+	my $status=" Player position=".toString($player->{position}).
+          "   Player dir=".sprintf("%.2f",$player->{dir}).
+          "   Objective: Find Blinking purple target\r";
+	printAt([$vOffset+$screenHeight/4,($ui->{windowWidth}-length $status)/2],$status);
 }
 
-
 # A 2d view is also possible, for debugging purposes,
-# it capitalises nd paints the wallls that can be seen
+# it capitalises and paints the walls that can be seen
 sub draw2D{
 	my ($overlay)=@_;
 	my $tmp=buildMap();
@@ -114,24 +123,31 @@ sub draw2D{
 	foreach (@$overlay){
 		insert($tmp,@$_)
 	}
-	paint($_) foreach (@$tmp);
-	drawStatus();
+	foreach my $row (@$tmp){
+		foreach (@$row) {
+			$_=~s/([A-OQ-Z])/\033[32m$1\033[0m/g;
+			print;
+		}
+		print"\n\r";
+	};
 }
 
 sub paint{
-	my $row=shift;
-	foreach(@$row){
-	  $_=~s/([A-OQ-Z])/\033[32m$1\033[0m/g;
-	  print;
-  }
-  print"\n\r";
-	return;
-	
+	my ($text,$colr)=@_;
+	return $text unless $colr || $mode eq "monochrome";
+	$colr=join("m\033[",@$colr) if ref $colr;
+	return "\033[".$colr."m".$text."\033[0m";
 }
 
-sub distance{ # vector displacements to scalar 
-	my ($vec1,$vec2)=@_;
-	return sqrt(($vec1->[0]-$vec2->[0])*($vec1->[0]-$vec2->[0])+($vec1->[1]-$vec2->[1])*($vec1->[1]-$vec2->[1]));
+sub printAt{
+	my ($location,$text)=@_;
+	my @out=ref $text?@$text:($text);
+	my ($line,$column)=@$location;
+	print "\033[".int ($line++).";".int($column)."H".$_ foreach(@out);
+}
+
+sub clearScreen{
+    system($^O eq 'MSWin32'?'cls':'clear');
 }
 
 
@@ -151,9 +167,72 @@ sub collision{  # see if point is at wall or edge
 	return $map->[int $point->[1]]->[int $point->[0]];#; =~/[^\sP]/?1:0;
 }
 
+sub movePlayer{ # move the player if possible, identify target found
+	my $newPos=shift;
+	my $occupied=collision($newPos);
+	$player->{position}=$newPos if $occupied=~/[P\s]/ ;
+	targetCaptured() if $occupied=~/t/;
+}
+
+sub targetCaptured{
+	printAt([($vOffset+$screenHeight/4)/2,($ui->{windowWidth}-40)/2],
+	         ["*****************************************",
+	          "*             Target Found!            **",
+	          "*****************************************"]);
+     printAt([$vOffset+$screenHeight/4,($ui->{windowWidth}-10)/2],"");
+     system("stty","sane");
+     $ui->stop();
+     exit;
+}
+
+sub buildMap{
+	my @rows=split(/\n/,$mapString);
+	return [map{[split //]}@rows];
+}
+
 sub insert{ # insert a character in the map position
 	my ($map,$vector,$char)=@_;
 	$map->[int($vector->[1])]->[int($vector->[0])]=$char;
+}
+###  Bitvector routines follow
+
+sub grid{ # create a bitvector array
+   my ($width,$height)=@_;
+   my $temp;vec( $temp, $width, 1 ) = 0;
+   return [map{$temp}(0..$height)];
+}
+
+# this function converts a bit vector array in a array of braille characters
+# and draws the array to the console
+sub draw {
+    my ($grid,$colours ) = @_;
+    use integer;
+    my $width=((length $grid->[0])-1)*8;
+    my $height=$#$grid-($#$grid%4);
+    my @block = ();  # the grid of braille characters
+    for ( my $y = 0 ; $y < $height  ; $y += 4 ) {
+        my $r = "";
+        for ( my $x = 0 ; $x < $width ; $x += 2 ) {
+			my $colr=$colours->[int $y/4]->[int $x/2]//0;
+			$colr="\033[".join("m\033[",@$colr) if ref $colr;
+			my ($col,$res)=("\033[".$colr."m","\033[0m");
+            $r .= $col.chr(0x2800 | oct(
+              "0b". vec( $grid->[ $y + 3 ], $x + 1, 1 )
+                  . vec( $grid->[ $y + 3 ], $x,     1 )
+                  . vec( $grid->[ $y + 2 ], $x + 1, 1 )
+                  . vec( $grid->[ $y + 1 ], $x + 1, 1 )
+                  . vec( $grid->[$y],       $x + 1, 1 )
+                  . vec( $grid->[ $y + 2 ], $x,     1 )
+                  . vec( $grid->[ $y + 1 ], $x,     1 )
+                  . vec( $grid->[$y],       $x,     1 ) 
+				)
+			).
+				$res;
+        }
+        push @block, $r;
+    }
+    my $line=$vOffset;
+    print "\033[".$line++.";".$hOffset."H".$_ foreach(@block );
 }
 
 sub outside{ # test whether the vector is outside the bit vector array
@@ -175,57 +254,18 @@ sub Add{  # add two vectors
 	return [map {$vector1->[$_]+$vector2->[$_]} (0..$#$vector1)];
 }
 
-sub grid{ # create a bitvector array
-   my ($width,$height)=@_;
-   my $temp;vec( $temp, $width, 1 ) = 0;
-   return [map{$temp}(0..$height)];
+sub distance{ # vector displacements to scalar 
+	my ($vec1,$vec2)=@_;
+	return sqrt(($vec1->[0]-$vec2->[0])*($vec1->[0]-$vec2->[0])+($vec1->[1]-$vec2->[1])*($vec1->[1]-$vec2->[1]));
 }
 
-# this function converts a bit vector array in a array of braille characters
-# and draws the array to the console
-sub draw {
-    my ($grid,$startX, $startY, $width, $height,$colours ) = @_;
-    use integer;
-    $startX//=0;
-    $startY//=0;
-    $width//=((length $grid->[0])-1)*8;
-    $height//=$#$grid;
-    $height-=$#$grid%4;
-    my @block = ();  # the grid of braille characters
-    for ( my $y = $startY ; $y < $height  ; $y += 4 ) {
-        my $r = "";
-        for ( my $x = $startX ; $x < $width ; $x += 2 ) {
-			my $colr=$colours->[int $y/4]->[int $x/2]//0;
-			$colr="\033[".join("m\033[",@$colr) if ref $colr;
-			my ($col,$res)=("\033[".$colr."m","\033[0m");
-            $r .= $col.chr(0x2800 | oct(
-              "0b". vec( $grid->[ $y + 3 ], $x + 1, 1 )
-                  . vec( $grid->[ $y + 3 ], $x,     1 )
-                  . vec( $grid->[ $y + 2 ], $x + 1, 1 )
-                  . vec( $grid->[ $y + 1 ], $x + 1, 1 )
-                  . vec( $grid->[$y],       $x + 1, 1 )
-                  . vec( $grid->[ $y + 2 ], $x,     1 )
-                  . vec( $grid->[ $y + 1 ], $x,     1 )
-                  . vec( $grid->[$y],       $x,     1 ) 
-				)
-			).
-				$res;
-        }
-        push @block, $r;
-    }
-    system($^O eq 'MSWin32'?'cls':'clear');
-    print join( "\n\r", @block ),"\n\r";
-}
-
-# plot pixel in a bitvector array
-sub plot {
+sub plot { # plot pixel in a bitvector array
     my ( $grid, $vec ) = @_;
     die  toString($vec) if outOfBounds($grid,$vec);
     vec( $grid->[ $vec->[1] ], $vec->[0], 1 ) = 1;
 }
 
-# ensure the bit vector does not go out of the bitvector array
-sub outOfBounds {
+sub outOfBounds { # ensure the vector does not go out of the bitvector array
     my ( $grid, $vec ) = @_;
     return 1 if $vec->[0] > 8*(length $grid->[0]);
     return 2 if $vec->[1] > @$grid;
@@ -234,45 +274,35 @@ sub outOfBounds {
     return 0;
 }
 
-sub buildMap{
-	my @rows=split(/\n/,$mapString);
-	return [map{[split //]}@rows];
-}
-
 sub setupUI{  # setup the UI
 	    my $keyActions={
         default=>{
-            'rightarrow'=>sub{$player->{dir}+=.1 ;},
-            'leftarrow' =>sub{$player->{dir}-=.1 ;},
-            'uparrow'   =>sub{
-				     my $tmp=[$player->{position}->[0]+.5*cos($player->{dir}),
-				              $player->{position}->[1]+.5*sin($player->{dir})];	
-				     $player->{position}=$tmp if collision($tmp)=~/[P\s]/ ;     },
-            'downarrow' =>sub{
-				     my $tmp=[$player->{position}->[0]-.5*cos($player->{dir}),
-				              $player->{position}->[1]-.5*sin($player->{dir})];	
-				     $player->{position}=$tmp if collision($tmp)=~/[P\s]/ ;     },
-            'd'   =>sub{
-				     my $tmp=[$player->{position}->[0]-.5*sin($player->{dir}),
-				              $player->{position}->[1]+.5*cos($player->{dir})];	
-				     $player->{position}=$tmp if collision($tmp)=~/[P\s]/ ;     },
-            'a' =>sub{
-				     my $tmp=[$player->{position}->[0]+.5*sin($player->{dir}),
-				              $player->{position}->[1]-.5*cos($player->{dir})];	
-				     $player->{position}=$tmp if collision($tmp)=~/[P\s]/ ;     },
+            'rightarrow'=>sub{$player->{dir}+=.1 ;},  # turn right
+            'leftarrow' =>sub{$player->{dir}-=.1 ;},  # turn left 
+            'uparrow'   =>sub{   # forwards
+				     movePlayer([$player->{position}->[0]+.5*cos($player->{dir}),
+				              $player->{position}->[1]+.5*sin($player->{dir})]) },
+            'downarrow' =>sub{   # backwards
+				     movePlayer([$player->{position}->[0]-.5*cos($player->{dir}),
+				              $player->{position}->[1]-.5*sin($player->{dir})]) },
+            'd'   =>sub{         # sidestep right
+				     movePlayer([$player->{position}->[0]-.5*sin($player->{dir}),
+				              $player->{position}->[1]+.5*cos($player->{dir})]) },
+            'a' =>sub{           # sidestep left
+				    movePlayer([$player->{position}->[0]+.5*sin($player->{dir}),
+				              $player->{position}->[1]-.5*cos($player->{dir})]) },
             'pagedown'  =>sub{},
             'pageup'    =>sub{},
             'tab'       =>sub{},
             'shifttab'  =>sub{},
             '#'         =>sub{},
-            "updateAction"=>sub{rayD()},
-            "windowChange"=>sub{},
+            "updateAction"=>sub{rayD()},      # this action defines the screen update action
+            "windowChange"=>sub{},            # tyhis defines what to do when screen size changes
             "m"           =>sub{$mode=($mode eq "map")?"3D":"map"}, # toggle between 2d and 3d},
         },
     };
 	foreach my $k (keys %{$keyActions->{default}}){
             $ui->setKeyAction("default",$k,$keyActions->{"default"}->{$k});
-		    #die join ("--",keys %{$ui->{actions}->{default}} );
     }
 }
 
@@ -316,7 +346,7 @@ sub run{
 sub stop{
     my $self=shift;
     $self->{run}=0;
-    
+    $| = 1;
 }
 
 sub setKeys {# gives the keys pressed a name
@@ -387,7 +417,7 @@ sub act{
         $self->{buffer}.=$key;
     } 
     $self->stop() if ($pressed eq "Q");
-    print $pressed;
+    print $pressed if $self->{debug};
     $self->{update}=1;
     
 }
