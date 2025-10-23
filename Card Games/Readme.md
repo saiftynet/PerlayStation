@@ -1,8 +1,9 @@
 ## Card Games
 
 ### Objective
-Create classes for Cards and Decks and Tables that allow interactive manipulations of cards for games, such as 
-bridge, poker, black jack, fish etc
+Create classes for Cards and Stacks and Tables that allow interactive manipulations of cards for games, such as 
+bridge, poker, black jack, fish etc. These objects can be displayed on a terminal window and positioned as disired, 
+eventually will have animations as well.
 
 
 ### Usage: 
