@@ -50,7 +50,7 @@ This contains the primitives for decorating character strings and blitting block
 ### Versions
 
 * 0.01
-First submission.
+First extremely buggy submission.
 
 
 
