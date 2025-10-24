@@ -24,10 +24,10 @@ add new games easily.
 
 # Collections of cards use the Stack object
 
- my $deck=new Stack;
- $deck->fullDeck();
- my $player1=new Stack;
- $deck->shuffle()->deal($player1);
+ my $deck=new Stack;        # create a new deck
+ $deck->fullDeck();         # this deck now has a full deck of cards
+ my $player1=new Stack;     # a player with no cards yet
+ $deck->shuffle()->deal($player1);   # shuffle the deck and give a card to the player from the top of the deck
 ```
 
 ### Cards Class
