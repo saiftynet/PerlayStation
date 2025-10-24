@@ -4,7 +4,8 @@
 Create classes for Cards and Stacks and Tables that allow interactive manipulations of cards for games, such as 
 bridge, poker, blackjack, fish etc. These objects can be displayed on a terminal window and positioned as desired, 
 eventually will have animations as well.  Some compatibility with the well established [Games::Cards](https://metacpan.org/pod/Games::Cards) 
-is expected, but that is not the primary goal of this project.  
+is expected, but that is not the primary goal of this project.  The object of this mainly about simplicity,
+and ultimately a "Card Game Language"
 
 
 ### Usage: 
