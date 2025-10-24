@@ -2,7 +2,7 @@
 
 ### Objective
 Create classes for Cards and Stacks and Tables that allow interactive manipulations of cards for games, such as 
-bridge, poker, black jack, fish etc. These objects can be displayed on a terminal window and positioned as disired, 
+bridge, poker, blackjack, fish etc. These objects can be displayed on a terminal window and positioned as desired, 
 eventually will have animations as well.
 
 
@@ -27,4 +27,32 @@ eventually will have animations as well.
  my $player1=new Stack;
  $deck->shuffle()->deal($player1);
 ```
+
+### Cards Class
+
+Cards have `$rank` ([A,2,3,..K, `$suit`, `$position` (location on terminal window), `$face` ("up" or "down"),
+Cards can be displayed (as single UTF8 character, as 3 rows of characters, or of arbitrary sizes.) at a location on the screen.
+This allows games where only a few cards need to be shown at a time, or when a large number of cards need to be shown.
+There are multiple ways to ceate a card at the moment; these will be reduced once an idea of what is best is decided.
+Cards may have a $packColour defined.
+
+### Stack Class
+
+This allows creation of compilations of cards, e.g. an entire deck, of a players hands
+The cards methods include `shuffle()`, `deal`([$position or $stack]) to a position on the table, or to another stack,
+displayed face down/up, 
+
+### Display.pm
+
+This contains the primitives for decorating character strings and blitting blocks or entire screens to the terminal window.
+
+
+### Versions
+
+* 0.01
+First submission.
+
+
+
+
 
