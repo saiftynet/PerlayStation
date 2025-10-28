@@ -53,6 +53,9 @@ This contains the primitives for decorating character strings and blitting block
 
 * 0.01
 First extremely buggy submission.
+* 0.01b
+* Restructinging for Future Integration with other  PerlayStation Modules
+* Allow better overloaded card creation parameters
 
 
 
