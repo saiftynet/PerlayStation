@@ -36,7 +36,7 @@ Cards have `$rank` ([A,2,3,..K, `$suit`, `$position` (location on terminal windo
 Cards can be displayed (as single UTF8 character, as 3 rows of characters, or of arbitrary sizes.) at a location on the screen.
 This allows games where only a few cards need to be shown at a time, or when a large number of cards need to be shown.
 There are multiple ways to ceate a card at the moment; these will be reduced once an idea of what is best is decided.
-Cards may have a $packColour defined.  Some compatiblity with existing [Games::Cards](
+Cards may have a $packColour defined.  Some compatiblity with existing [Games::Cards](https://metacpan.org/pod/Games::Cards)
 
 ### Stack Class
 
